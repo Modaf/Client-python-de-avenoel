@@ -1,0 +1,94 @@
+import json
+import urllib3
+import time
+urllib3.disable_warnings()
+http = urllib3.PoolManager()
+
+class Client() :
+    def __init__(self) :
+        self.pseudo = ""
+        self.mdp = ""
+        self.token = ""
+        self.id = ""
+
+    def connection(self, pseudo, mdp) : #ok
+        r = http.request('POST', 'https://avenoel.org/api/v1/auth', fields = {'username' : pseudo, 'password' : mdp})
+        liste = json.loads(r.data)
+        self.token = liste["api_token"]
+        if liste["error"] == None :
+            print("Authentification faite :)")
+        else :
+            print(liste["error"])
+
+    def pseudoFromId(self, id) :
+        r = http.request('GET', 'https://avenoel.org/api/v1/user/'+str(id))
+        liste = json.loads(r.data)
+        return(liste["data"]["username"])
+
+    def getAllTopics(self) : #ok
+        """Retourne une liste des topics, faire liste[k]["api_url"] pour l'url, "title" pour le titre"""
+        r = http.request('GET', 'https://avenoel.org/api/v1/topics')
+        liste = json.loads(r.data)
+        return liste["data"]
+
+    def getTopic(self, id) : #ok
+        """Retourne les infos d'un topic et de son auteur, il faut passer l'id du topic"""
+        r = http.request('GET', 'https://avenoel.org/api/v1/topics/'+str(id), fields = {'with_user' : True})
+        liste = json.loads(r.data)
+        return liste
+
+    def getAllMessages(self, id) : #ok
+        """Retourne les infos d'un topic et de son auteur, il faut passer l'id (un int) du topic
+        "content" pour le contenu d'un message"""
+        r = http.request('GET', 'https://avenoel.org/api/v1/messages/', fields = {'topic_id' : id})
+        liste = json.loads(r.data)
+        return liste
+
+    def getLastMessages(self, nb) : #ok
+        """Retourne les infos d'un topic et de son auteur, il faut passer l'id (un int) du topic
+        "content" pour le contenu d'un message"""
+        r = http.request('GET', 'https://avenoel.org/api/v1/messages/', fields = {'topic_id' : self.id, 'reverse' : True, 'size' : nb})
+        liste = json.loads(r.data)
+        return liste
+
+    def postMessage(self, id, message) : #ok
+        if self.token == "" :
+            print("Pas de token d'api")
+        r = http.request('POST', 'https://avenoel.org/api/v1/messages', headers = {'X-Authorization' : token}, fields = {'topic_id' : id, 'content' : message})
+        liste = json.loads(r.data)
+        return liste
+    
+    def send(self, msg) :
+        if self.id == "" :
+            print("Pas de blabla")
+        else :
+            l = self.postMessage(self.id, msg)
+            print(l)
+
+def affichage(li, lasti) :
+    """Affiche une liste de getLastMessages par exemple"""
+    dernierMessage = ""
+    if li["messages"] :
+        dernierMessage = li["messages"][0]
+    for k in li["messages"] :
+        if lasti == k :
+            break
+        print("<"+c.pseudoFromId(k["user_id"])+">", end = " ")
+        liste = k["content"].split("\n")
+        for i in liste :
+            if not i[0] == ">" and not i == "\r" :
+                for k in i.split() :
+                    if not "https://image.noelshack.com/" in k :
+                        print(k, end = " ")
+                    else :
+                        print(k[:k.index("https://image.noelshack.com/")], end = " ")
+                print("")
+    return dernierMessage
+
+
+
+
+c = Client()
+c.connection("", "")
+c.id = 44658
+
