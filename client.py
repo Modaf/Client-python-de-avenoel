@@ -175,7 +175,7 @@ lastmsg = ""
 
 c = Client()
 if TOKEN != "" :
-    c.TOKEN = TOKEN
+    c.token = TOKEN
 else :
     c.connection(username, mdp)
 init()
