@@ -54,7 +54,7 @@ class Client() :
     def postMessage(self, id, message) : #ok
         if self.token == "" :
             print("Pas de token d'api")
-        r = http.request('POST', 'https://avenoel.org/api/v1/messages', headers = {'X-Authorization' : token}, fields = {'topic_id' : id, 'content' : message})
+        r = http.request('POST', 'https://avenoel.org/api/v1/messages', headers = {'X-Authorization' : self.token}, fields = {'topic_id' : id, 'content' : message})
         liste = json.loads(r.data)
         return liste
     
